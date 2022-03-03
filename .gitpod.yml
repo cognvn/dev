@@ -1,0 +1,9 @@
+image: gitpod/workspace-full
+tasks:
+- init: |
+    yarn dlx @yarnpkg/sdks vscode
+    yarn install
+vscode:
+  extensions:
+    - dbaeumer.vscode-eslint
+    - arcanis.vscode-zipfs
