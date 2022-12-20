@@ -5,7 +5,7 @@ on:
       tess_ver:
         description: 'Tesseract version'
         require: true
-        default: '5.1.0'
+        default: '5.2.0'
       lept_ver:
         description: 'Leptonica version'
         require: true
@@ -91,7 +91,7 @@ jobs:
         run: d:\a\local\bin\tesseract.exe --version
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tesseract-${{ matrix.config.arch }}
           path: d:\a\local\bin

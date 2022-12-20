@@ -5,12 +5,15 @@ on:
       kernel_ver:
         description: 'Kernel version'
         require: true
-        default: 'linux-msft-wsl-5.15.62.1'
+        default: 'linux-msft-wsl-5.15.83.1'
 
 jobs:
   build_win:
     name: Build WSL kernel
-    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-20.04]
+    runs-on: ${{ matrix.os }}
     
     steps:
       - name: Checkout WSL2 kernel
@@ -28,7 +31,7 @@ jobs:
         run: make KCONFIG_CONFIG=Microsoft/config-wsl
 
       - name: Upload kernel
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tesseract-${{ matrix.config.arch }}
           path: arch/x86/boot/bzImage
