@@ -4,7 +4,7 @@ on:
     inputs:
       kernel_ver:
         description: 'Kernel version'
-        require: true
+        required: true
         default: 'linux-msft-wsl-5.15.83.1'
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
     name: Build WSL kernel
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-20.04]
+        os: [ubuntu-22.04, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     
     steps:
