@@ -33,5 +33,5 @@ jobs:
       - name: Upload kernel
         uses: actions/upload-artifact@v3
         with:
-          name: tesseract-${{ matrix.config.arch }}
+          name: bzImage
           path: arch/x86/boot/bzImage
