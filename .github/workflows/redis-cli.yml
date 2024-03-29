@@ -1,0 +1,33 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build redis-cli on Windows
+on:
+  workflow_dispatch:
+    inputs:
+      redis_ver:
+        description: 'Redis version'
+        required: true
+        default: '7.2.4'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        repository: redis/redis
+        ref: ${{ github.event.inputs.redis_ver }}
+    - name: make
+      run: |
+        sudo apt-get update && sudo apt-get install libc6-dev-i386
+        cd src && make REDIS_CFLAGS='-Werror' PREFIX='d:/a/local' CFLAGS="-static" LDFLAGS="-static" redis-cli
+    - name: Display Redis Cli Version
+      continue-on-error: true
+      run: ./src/redis-cli --version
+    - name: Upload binaries
+      uses: actions/upload-artifact@v3
+      with:
+        name: redis-cli-bin
+        path: src/redis-cli.exe
