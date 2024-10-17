@@ -5,19 +5,19 @@ on:
       kernel_ver:
         description: 'Kernel version'
         required: true
-        default: 'linux-msft-wsl-5.15.83.1'
+        default: 'linux-msft-wsl-6.6.36.6'
 
 jobs:
   build_win:
     name: Build WSL kernel
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-20.04]
+        os: [ubuntu-24.04]
     runs-on: ${{ matrix.os }}
     
     steps:
       - name: Checkout WSL2 kernel
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: microsoft/WSL2-Linux-Kernel
           ref: ${{ github.event.inputs.kernel_ver }}
@@ -25,13 +25,13 @@ jobs:
       - name: Install dep
         run: |
              sudo apt-get update
-             sudo apt install build-essential flex bison dwarves libssl-dev libelf-dev -y
+             sudo apt install build-essential flex bison dwarves libssl-dev libelf-dev cpio -y
           
       - name: Build kernel
         run: make KCONFIG_CONFIG=Microsoft/config-wsl
 
       - name: Upload kernel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bzImage
           path: arch/x86/boot/bzImage
