@@ -1,0 +1,36 @@
+trigger: none
+
+pool:
+  vmImage: windows-latest
+
+steps:
+  - script: git config --system core.longpaths true
+    displayName: "Enable longpaths for git"
+
+  - powershell: New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+    displayName: "Enable longpaths in registry editor"
+    continueOnError: true
+
+  - task: Cache@2
+    inputs:
+      key: '"cargo" | "$(Agent.OS)" | Cargo.lock'
+      path: $(Build.SourcesDirectory)\target
+    displayName: cache cargo build
+
+  - task: Cache@2
+    inputs:
+      key: '"cargo-registry" | "$(Agent.OS)" | Cargo.lock'
+      path: $(UserProfile)\.cargo\registry
+    displayName: cache cargo registry
+
+  - script: cargo xtask clippy
+    displayName: "Cargo clippy"
+
+  - script: cargo build --release
+    displayName: "Building zed"
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish release"
+    inputs:
+      ArtifactName: release
+      PathtoPublish: "$(Pipeline.Workspace)/target/release"

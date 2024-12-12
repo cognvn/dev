@@ -1,0 +1,32 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@5.0.0
+
+jobs:
+  build:
+    executor: win/server-2022
+    environment:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+    steps:
+      - checkout
+      - run: choco install -y rust --version=1.81.0
+      - run: choco install -y rustup.install
+      - run: "git config --system core.longpaths true"
+      - run: New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+      - restore_cache:
+          keys:
+            - cargo
+            - cargo-registry
+      - run: cargo xtask clippy
+      - run: cargo build --release
+      - store_artifacts:
+          path: target\release
+      - save_cache:
+          paths:
+            - C:\Users\circleci\.cargo\registry
+          key: cargo-registry
+      - save_cache:
+          paths:
+            - target
+          key: cargo
