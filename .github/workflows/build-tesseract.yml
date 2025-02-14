@@ -5,11 +5,11 @@ on:
       tess_ver:
         description: 'Tesseract version'
         require: true
-        default: '5.2.0'
+        default: '5.5.0'
       lept_ver:
         description: 'Leptonica version'
         require: true
-        default: '1.82.0'
+        default: '1.85.0'
 
 jobs:
   build_win:
@@ -56,7 +56,7 @@ jobs:
              
       - name: Build and Install webp
         run: |
-             git clone --depth 1 -b v1.2.2 https://github.com/webmproject/libwebp.git && cd libwebp
+             git clone --depth 1 -b v1.5.0 https://github.com/webmproject/libwebp.git && cd libwebp
              cmake . -Bbuild -G "Visual Studio 17 2022" -A ${{ matrix.config.platform }} -DCMAKE_BUILD_TYPE=Release `
               -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF `
               -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF `
