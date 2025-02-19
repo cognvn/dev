@@ -24,12 +24,14 @@ jobs:
                 
       - name: Install dep
         run: |
-             sudo apt-get update
-             sudo apt install build-essential flex bison dwarves libssl-dev libelf-dev cpio -y
+            sudo apt-get update
+            sudo apt install build-essential flex bison libssl-dev libelf-dev bc python3 pahole cpio -y
           
       - name: Build kernel
-        run: make KCONFIG_CONFIG=Microsoft/config-wsl
-
+        run: |
+            make -j$(nproc) KCONFIG_CONFIG=Microsoft/config-wsl
+            make modules_install headers_install
+            
       - name: Upload kernel
         uses: actions/upload-artifact@v4
         with:
