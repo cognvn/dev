@@ -30,7 +30,7 @@ jobs:
       - name: Build kernel
         run: |
             make -j$(nproc) KCONFIG_CONFIG=Microsoft/config-wsl
-            make modules_install headers_install
+            make INSTALL_MOD_PATH="$PWD/modules" INSTALL_HDR_PATH="$PWD/headers" modules_install headers_install
             
       - name: Upload kernel
         uses: actions/upload-artifact@v4
