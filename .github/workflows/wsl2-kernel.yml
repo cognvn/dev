@@ -31,7 +31,7 @@ jobs:
         run: |
             make -j$(nproc) KCONFIG_CONFIG=Microsoft/config-wsl
             make INSTALL_MOD_PATH="$PWD/modules" modules_install
-            ./Microsoft/scripts/gen_modules_vhdx.sh "$PWD/modules" $(make -s kernelrelease) modules.vhdx
+            sudo ./Microsoft/scripts/gen_modules_vhdx.sh "$PWD/modules" $(make -s kernelrelease) modules.vhdx
             
       - name: Upload kernel
         uses: actions/upload-artifact@v4
