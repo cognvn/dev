@@ -5,7 +5,7 @@ on:
       kernel_ver:
         description: 'Kernel version'
         required: true
-        default: 'linux-msft-wsl-6.6.36.6'
+        default: 'linux-msft-wsl-6.6.84.1'
 
 jobs:
   build_win:
@@ -30,10 +30,13 @@ jobs:
       - name: Build kernel
         run: |
             make -j$(nproc) KCONFIG_CONFIG=Microsoft/config-wsl
-            make INSTALL_MOD_PATH="$PWD/modules" INSTALL_HDR_PATH="$PWD/headers" modules_install headers_install
+            make INSTALL_MOD_PATH="$PWD/modules" modules_install
+            ./Microsoft/scripts/gen_modules_vhdx.sh "$PWD/modules" $(make -s kernelrelease) modules.vhdx
             
       - name: Upload kernel
         uses: actions/upload-artifact@v4
         with:
           name: bzImage
-          path: arch/x86/boot/bzImage
+          path: |
+            arch/x86/boot/bzImage
+            modules.vhdx
