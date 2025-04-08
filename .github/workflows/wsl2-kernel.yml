@@ -25,7 +25,7 @@ jobs:
       - name: Install dep
         run: |
             sudo apt-get update
-            sudo apt install build-essential flex bison libssl-dev libelf-dev bc python3 pahole cpio -y
+            sudo apt install build-essential flex bison dwarves libssl-dev libelf-dev cpio qemu-utils -y
           
       - name: Build kernel
         run: |
