@@ -1,6 +1,6 @@
 # Copy from https://github.com/deevus/zed-windows-builds/blob/main/.github/workflows/build.yml
 # to manually build prewview release
-name: Build
+name: Build Zed IDE
 
 on:
   workflow_dispatch:
