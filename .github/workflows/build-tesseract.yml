@@ -5,11 +5,11 @@ on:
       tess_ver:
         description: 'Tesseract version'
         require: true
-        default: '5.5.0'
+        default: '5.5.1'
       lept_ver:
         description: 'Leptonica version'
         require: true
-        default: '1.85.0'
+        default: '1.86.0'
 
 jobs:
   build_win:
@@ -39,7 +39,7 @@ jobs:
     
     steps:
       - name: Checkout Tesseract
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: tesseract-ocr/tesseract
           ref: ${{ github.event.inputs.tess_ver }}
@@ -52,7 +52,7 @@ jobs:
              vcpkg/vcpkg integrate install
           
       - name: Build and Install libraries using vcpkg
-        run: vcpkg/vcpkg install --triplet ${{ matrix.config.triplet }} giflib libjpeg-turbo liblzma libpng tiff zlib openjpeg libarchive curl
+        run: vcpkg/vcpkg install --triplet ${{ matrix.config.triplet }} giflib libjpeg-turbo liblzma libpng tiff zlib-ng jbigkit openjpeg libarchive zstd curl
              
       - name: Build and Install webp
         run: |
@@ -90,7 +90,7 @@ jobs:
         run: d:\a\local\bin\tesseract.exe --version
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: tesseract-${{ matrix.config.arch }}
           path: d:\a\local\bin
