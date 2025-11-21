@@ -1,8 +1,9 @@
 env:
-  MITRA_VERSION: "v4.13.0"
+  MITRA_VERSION: "v4.13.1"
 mitra_build_task:
   name: "Build Mitra on FreeBSD"
   alias: "build_mitra"
+  trigger_type: manual
   freebsd_instance:
     image_family: freebsd-14-3
   install_script: |
