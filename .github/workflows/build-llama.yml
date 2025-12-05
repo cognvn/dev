@@ -6,6 +6,11 @@ on:
         description: "Cuda version"
         required: true
         default: "13.0.2"
+      cuda_packages:
+        description: "Cuda packages"
+        required: false
+        default: '["nvcc","nvrtc","nvtx","cuda_profiler_api","cudart","visual_studio_integration"]
+        
 jobs:
   build_ggml_cuda:
     runs-on: windows-2025
@@ -29,7 +34,7 @@ jobs:
         with:
           cuda: "${{ github.event.inputs.cuda_ver }}"
           method: network
-          sub-packages: '["nvcc","nvrtc","nvtx","profile_api","cudart","visual_studio_integration"]'
+          sub-packages: "${{ github.event.inputs.cuda_packages }}"
           non-cuda-sub-packages: '["libcublas"]'
 
       - name: Install Ninja
