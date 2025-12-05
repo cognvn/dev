@@ -9,7 +9,7 @@ on:
       cuda_packages:
         description: "Cuda packages"
         required: false
-        default: '["nvcc","nvrtc","nvtx","cuda_profiler_api","cudart","visual_studio_integration"]
+        default: '["nvcc","nvrtc","nvtx","cuda_profiler_api","cudart","visual_studio_integration"]'
         
 jobs:
   build_ggml_cuda:
