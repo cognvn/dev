@@ -29,8 +29,8 @@ jobs:
         with:
           cuda: "${{ github.event.inputs.cuda_ver }}"
           method: network
-          sub-packages: ["nvcc","nvrtc","nvtx","profile_api","cudart","visual_studio_integration"]
-          non-cuda-sub-packages: ["libcublas"]
+          sub-packages: '["nvcc","nvrtc","nvtx","profile_api","cudart","visual_studio_integration"]'
+          non-cuda-sub-packages: '["libcublas"]'
 
       - name: Install Ninja
         id: install_ninja
