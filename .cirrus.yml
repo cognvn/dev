@@ -1,11 +1,11 @@
 env:
-  MITRA_VERSION: "v4.13.1"
+  MITRA_VERSION: "v4.14.0"
 mitra_build_task:
   name: "Build Mitra on FreeBSD"
   alias: "build_mitra"
   trigger_type: manual
   freebsd_instance:
-    image_family: freebsd-14-3
+    image_family: freebsd-15-0
   install_script: |
     pkg install -y bash cmake gcc git llvm rustup-init
     which rustup >/dev/null 2>&1 || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -14,6 +14,6 @@ mitra_build_task:
     git clone --depth 1 -b ${MITRA_VERSION} https://codeberg.org/silverpill/mitra.git mitra
     cd mitra
     cargo build --release --features production
+    tar -czvf ../mitra.tgz -C target/release mitra
   binary_artifacts:
-    path: "mitra/target/release/mitra"
-    type: application/octet-stream
+    path: "mitra.tgz"
