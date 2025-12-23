@@ -1,11 +1,11 @@
 env:
-  MITRA_VERSION: "v4.14.0"
+  MITRA_VERSION: "v4.15.0"
 mitra_build_task:
   name: "Build Mitra on FreeBSD"
   alias: "build_mitra"
   trigger_type: manual
   freebsd_instance:
-    image_family: freebsd-15-0
+    image_family: freebsd-15-0-amd64-ufs
   install_script: |
     pkg install -y bash cmake gcc git llvm rustup-init
     which rustup >/dev/null 2>&1 || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
