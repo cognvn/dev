@@ -1,0 +1,66 @@
+name: Windows Vulkan build
+
+on:
+  workflow_dispatch:
+    inputs:
+      whisper_ver:
+        description: "Whisper.cpp version"
+        required: true
+        default: "v1.8.3"
+
+jobs:
+  native-build:
+    runs-on: windows-2025
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: ggml-org/whisper.cpp
+          ref: ${{ github.event.inputs.whisper_ver }}
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Install Vulkan SDK
+        run: |
+          $VulkanVersion = "1.4.335.0"
+          $InstallerURL = "https://sdk.lunarg.com/sdk/download/$VulkanVersion/windows/vulkansdk-windows-X64-$VulkanVersion.exe"
+          $InstallerPath = "$env:TEMP\VulkanSDK-Installer.exe"
+
+          Write-Host "Downloading Vulkan SDK $VulkanVersion..."
+          Invoke-WebRequest -Uri $InstallerURL -OutFile $InstallerPath
+
+          Write-Host "Installing Vulkan SDK..."
+          Start-Process -FilePath $InstallerPath -ArgumentList "in --al -c" -Wait
+
+          # The SDK typically installs to C:\VulkanSDK\<version>
+          $VulkanPath = "C:\VulkanSDK\$VulkanVersion"
+
+          if (Test-Path $VulkanPath) {
+            Write-Host "Vulkan SDK installed at: $VulkanPath"
+
+            # Add to PATH
+            echo "$VulkanPath\Bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+            # Set environment variables
+            echo "VULKAN_SDK=$VulkanPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "VK_SDK_PATH=$VulkanPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+            Write-Host "Vulkan SDK setup complete"
+          } else {
+            Write-Error "Vulkan SDK installation failed - path not found: $VulkanPath"
+            exit 1
+          }
+        shell: pwsh
+
+      - name: Run Build
+        run: |
+          cmake -B build -DGGML_VULKAN=1 -DGGML_NATIVE=OFF
+          cmake --build build -j --config Release
+        shell: pwsh
+
+      - name: Upload Windows Vulkan Build Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: windows-vulkan-build
+          path: "build/bin/Release/*"
