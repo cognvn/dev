@@ -5,16 +5,16 @@ on:
       tess_ver:
         description: "Tesseract version"
         required: true
-        default: "5.5.1"
+        default: "5.5.2"
       lept_ver:
         description: "Leptonica version"
         required: true
-        default: "1.86.0"
+        default: "1.87.0"
 
 jobs:
   build_win:
     name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
+    runs-on: windows-2025-vs2026
     env:
       INSTALL_DIR: "d:/a/local"
       PKG_CONFIG_PATH: "d:/a/local/lib/pkgconfig"
@@ -24,14 +24,12 @@ jobs:
         config:
           - {
               name: "Windows MSVC latest - x86",
-              os: windows-latest,
               arch: x86,
               triplet: x86-windows-static,
               platform: Win32,
             }
           - {
               name: "Windows MSVC latest - x64",
-              os: windows-latest,
               arch: x64,
               triplet: x64-windows-static,
               platform: x64,
@@ -52,24 +50,24 @@ jobs:
           vcpkg/vcpkg integrate install
 
       - name: Build and Install libraries using vcpkg
-        run: vcpkg/vcpkg install --triplet ${{ matrix.config.triplet }} giflib libjpeg-turbo liblzma libpng tiff zlib-ng jbigkit openjpeg libarchive zstd curl
+        run: vcpkg/vcpkg install --triplet ${{ matrix.config.triplet }} giflib libjpeg-turbo liblzma libpng libwebp tiff zlib-ng jbigkit openjpeg libarchive zstd curl
 
-      - name: Build and Install webp
-        run: |
-          git clone --depth 1 -b v1.5.0 https://github.com/webmproject/libwebp.git && cd libwebp
-          cmake . -Bbuild -G "Visual Studio 17 2022" -A ${{ matrix.config.platform }} -DCMAKE_BUILD_TYPE=Release `
-           -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF `
-           -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF `
-           "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake" `
-           -DVCPKG_TARGET_TRIPLET=${{ matrix.config.triplet }} `
-           "-DCMAKE_INSTALL_PREFIX=${env:INSTALL_DIR}"
-          cmake --build build --config Release --target install
+      # - name: Build and Install webp
+      #   run: |
+      #     git clone --depth 1 -b v1.6.0 https://github.com/webmproject/libwebp.git && cd libwebp
+      #     cmake . -Bbuild -G "Visual Studio 17 2022" -A ${{ matrix.config.platform }} -DCMAKE_BUILD_TYPE=Release `
+      #      -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF `
+      #      -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF `
+      #      "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake" `
+      #      -DVCPKG_TARGET_TRIPLET=${{ matrix.config.triplet }} `
+      #      "-DCMAKE_INSTALL_PREFIX=${env:INSTALL_DIR}"
+      #     cmake --build build --config Release --target install
 
       - name: Build Leptonica using cmake
         run: |
           git clone --depth 1 -b ${{ github.event.inputs.lept_ver }} https://github.com/DanBloomberg/leptonica.git
           cd leptonica
-          cmake . -B build -G "Visual Studio 17 2022" -A ${{ matrix.config.platform }} -DCMAKE_BUILD_TYPE=Release `
+          cmake . -B build -G "Visual Studio 18 2026" -A ${{ matrix.config.platform }} -DCMAKE_BUILD_TYPE=Release `
            -DSW_BUILD=OFF -DBUILD_PROG=OFF -DBUILD_SHARED_LIBS=ON `
            "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake" `
            -DVCPKG_TARGET_TRIPLET=${{ matrix.config.triplet }} `
@@ -78,7 +76,7 @@ jobs:
 
       - name: Build and Install tesseract
         run: |
-          cmake . -Bbuild -G "Visual Studio 17 2022" -A ${{ matrix.config.platform }} -DCMAKE_BUILD_TYPE=Release `
+          cmake . -Bbuild -G "Visual Studio 18 2026" -A ${{ matrix.config.platform }} -DCMAKE_BUILD_TYPE=Release `
            -DBUILD_TRAINING_TOOLS=OFF -DSW_BUILD=OFF -DBUILD_SHARED_LIBS=ON -DOPENMP_BUILD=OFF `
            "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake" `
            -DVCPKG_TARGET_TRIPLET=${{ matrix.config.triplet }} `
@@ -90,7 +88,7 @@ jobs:
         run: d:\a\local\bin\tesseract.exe --version
 
       - name: Upload binaries
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: tesseract-${{ matrix.config.arch }}
           path: d:\a\local\bin

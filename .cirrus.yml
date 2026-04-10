@@ -7,13 +7,14 @@ mitra_build_task:
   freebsd_instance:
     image_family: freebsd-15-0-amd64-ufs
   install_script: |
-    pkg install -y bash cmake gcc git llvm rustup-init
+    pkg install -y bash cmake gcc git llvm rustup-init wget
     which rustup >/dev/null 2>&1 || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   build_script: |
     . "$HOME/.cargo/env"
-    git clone --depth 1 -b ${MITRA_VERSION} https://codeberg.org/silverpill/mitra.git mitra
-    cd mitra
+    cargo install jaq
+    mitra_url=$(wget -q -O- https://codeberg.org/api/v1/repos/silverpill/mitra/releases/latest | jaq -r '.tarball_url')
+    wget -q -O- $mitra_url | tar -xz --strip-components=1
     cargo build --release --features production
-    tar -czvf ../mitra.tgz -C target/release mitra
+    tar -czvf mitra.tgz -C target/release mitra
   binary_artifacts:
     path: "mitra.tgz"
