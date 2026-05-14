@@ -1,20 +1,48 @@
 env:
-  MITRA_VERSION: "v4.15.0"
+  INSTALL_PKGS: ""
+  CRATE_NAME: "mise"
+
 mitra_build_task:
   name: "Build Mitra on FreeBSD"
   alias: "build_mitra"
   trigger_type: manual
+  env:
+    CC: clang
   freebsd_instance:
     image_family: freebsd-15-0-amd64-ufs
   install_script: |
-    pkg install -y bash cmake gcc git llvm rustup-init wget
+    pkg install -y bash cmake gcc git llvm rustup-init wget ${INSTALL_PKGS}
     which rustup >/dev/null 2>&1 || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-  build_script: |
-    . "$HOME/.cargo/env"
-    cargo install jaq
-    mitra_url=$(wget -q -O- https://codeberg.org/api/v1/repos/silverpill/mitra/releases/latest | jaq -r '.tarball_url')
-    wget -q -O- $mitra_url | tar -xz --strip-components=1
-    cargo build --release --features production
-    tar -czvf mitra.tgz -C target/release mitra
+  build_script:
+    - |
+      #!/usr/bin/env bash
+      . "$HOME/.cargo/env"
+      cargo install jaq
+      mitra_url=$(wget -q -O- https://codeberg.org/api/v1/repos/silverpill/mitra/releases/latest | jaq -r '.tarball_url')
+      wget -q -O- $mitra_url | tar -xz --strip-components=1
+      cargo build --release --features production
+      tar -czvf mitra.tgz -C target/release mitra
   binary_artifacts:
     path: "mitra.tgz"
+
+build_from_registry_task:
+  name: "Build Rust crates from crates.io on FreeBSD"
+  alias: "build_registry"
+  trigger_type: manual
+  freebsd_instance:
+    image_family: freebsd-15-0-amd64-ufs
+  env:
+    CARGO_INSTALL_ROOT: /opt/cargo
+    CARGO_HOME: /usr/local/cargo
+  install_script: |
+    pkg install -y bash cmake gcc git llvm rustup-init wget ${INSTALL_PKGS}
+    which rustup >/dev/null 2>&1 || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  build_script:
+    - |
+      #!/usr/bin/env bash
+      . "${CARGO_HOME}/env"
+      cargo install $CRATE_NAME
+      ldd ${CARGO_INSTALL_ROOT}/*
+      tar -czvf crates.tgz -C ${CARGO_INSTALL_ROOT} *
+  binary_artifacts:
+    path: "crates.tgz"

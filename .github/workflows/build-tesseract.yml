@@ -50,18 +50,9 @@ jobs:
           vcpkg/vcpkg integrate install
 
       - name: Build and Install libraries using vcpkg
-        run: vcpkg/vcpkg install --triplet ${{ matrix.config.triplet }} giflib libjpeg-turbo liblzma libpng libwebp tiff zlib-ng jbigkit openjpeg libarchive zstd curl
-
-      # - name: Build and Install webp
-      #   run: |
-      #     git clone --depth 1 -b v1.6.0 https://github.com/webmproject/libwebp.git && cd libwebp
-      #     cmake . -Bbuild -G "Visual Studio 17 2022" -A ${{ matrix.config.platform }} -DCMAKE_BUILD_TYPE=Release `
-      #      -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF `
-      #      -DWEBP_BUILD_WEBPINFO=OFF -DWEBP_BUILD_WEBPMUX=OFF `
-      #      "-DCMAKE_TOOLCHAIN_FILE=${env:GITHUB_WORKSPACE}/vcpkg/scripts/buildsystems/vcpkg.cmake" `
-      #      -DVCPKG_TARGET_TRIPLET=${{ matrix.config.triplet }} `
-      #      "-DCMAKE_INSTALL_PREFIX=${env:INSTALL_DIR}"
-      #     cmake --build build --config Release --target install
+        run: vcpkg/vcpkg install --triplet ${{ matrix.config.triplet }} giflib
+          libjpeg-turbo liblzma libpng libwebp tiff zlib-ng jbigkit openjpeg
+          libarchive zstd curl
 
       - name: Build Leptonica using cmake
         run: |
