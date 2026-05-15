@@ -42,7 +42,8 @@ build_from_registry_task:
       #!/usr/bin/env bash
       . "${CARGO_HOME}/env"
       cargo install $CRATE_NAME
-      ldd ${CARGO_INSTALL_ROOT}/*
-      tar -czvf crates.tgz -C ${CARGO_INSTALL_ROOT} *
+      ldd ${CARGO_INSTALL_ROOT}/bin/*
+      mv ${CARGO_INSTALL_ROOT}/bin ./bin
+      tar -czvf crates.tgz bin
   binary_artifacts:
     path: "crates.tgz"

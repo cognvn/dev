@@ -1,0 +1,76 @@
+name: Build on FreeBSD VM
+
+on:
+  workflow_dispatch:
+    inputs:
+      os_version:
+        description: "Version of FreeBSD OS"
+        required: true
+        default: "15.0"
+      crate_name:
+        description: "Name of crate to build"
+        required: false
+      pkg_install:
+        description: "Additional packages to install"
+        required: false
+      build_mitra:
+        description: "Trigger build of mitra"
+        type: boolean
+
+jobs:
+  crate-build:
+    name: Build crate from crates.io
+    runs-on: ubuntu-latest
+    if: ${{ inputs.crate_name }}
+    steps:
+      - name: Build in FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        env:
+          CARGO_INSTALL_ROOT: /build
+        with:
+          release: "${{ inputs.os_version }}"
+          envs: "CARGO_INSTALL_ROOT"
+          usesh: true
+          prepare: |
+            pkg install -y bash cmake gcc git llvm rustup-init wget ${{ inputs.pkg_install }}
+            which rustup >/dev/null 2>&1 || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          run: |
+            #!/usr/bin/env bash
+            . "${HOME}/.cargo/env"
+            cargo install ${{ inputs.crate_name }}
+            ldd ${CARGO_INSTALL_ROOT}/bin/*
+            mv ${CARGO_INSTALL_ROOT}/bin ./bin
+            tar -czvf crates.tgz bin
+      - name: Upload Crates Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: crates-build
+          path: "crates.tgz"
+
+  mitra-build:
+    name: Build mitra
+    runs-on: ubuntu-latest
+    if: ${{ inputs.build_mitra }}
+    steps:
+      - name: Build in FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "${{ inputs.os_version }}"
+          envs: "CARGO_INSTALL_ROOT"
+          usesh: true
+          prepare: |
+            pkg install -y bash cmake gcc git llvm rustup-init wget ${{ inputs.pkg_install }}
+            which rustup >/dev/null 2>&1 || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          run: |
+            #!/usr/bin/env bash
+            . "$HOME/.cargo/env"
+            cargo install jaq
+            mitra_url=$(wget -q -O- https://codeberg.org/api/v1/repos/silverpill/mitra/releases/latest | jaq -r '.tarball_url')
+            wget -q -O- $mitra_url | tar -xz --strip-components=1
+            cargo build --release --features production
+            tar -czvf mitra.tgz -C target/release mitra
+      - name: Upload Crates Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: mitra-build
+          path: "mitra.tgz"
