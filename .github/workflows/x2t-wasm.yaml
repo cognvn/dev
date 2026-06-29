@@ -1,0 +1,30 @@
+name: Build x2t wasm for OnlyOffice web
+on:
+  workflow_dispatch:
+    inputs:
+      office_ver:
+        description: 'OnlyOffice version'
+        required: true
+        default: 'v9.4.0.131'
+
+jobs:
+  build_x2t:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout X2T
+        uses: actions/checkout@v7
+        with:
+          repository: cryptpad/onlyoffice-x2t-wasm
+      - name: Prepare latest version
+        run: |
+          rm -rf core
+          git clone -b ${{ github.event.inputs.office_ver }}  https://github.com/ONLYOFFICE/core.git
+          sed -i -e 's/v9.3.0.140/v9.4.0.131/g' -e 's/8.3.3/9.4.0/g' Dockerfile
+      - name: Build x2t
+        run: |
+          bash build.sh
+      - name: Upload x2t
+        uses: actions/upload-artifact@v7
+        with:
+          name: x2t
+          path: build/*

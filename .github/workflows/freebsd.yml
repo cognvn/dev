@@ -6,7 +6,7 @@ on:
       os_version:
         description: "Version of FreeBSD OS"
         required: true
-        default: "15.0"
+        default: "14.3"
       crate_name:
         description: "Name of crate to build"
         required: false
